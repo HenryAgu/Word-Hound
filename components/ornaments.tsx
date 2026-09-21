@@ -12,6 +12,7 @@ export function SectionHeading({
 }) {
   return (
     <Tag
+      data-anim="rise"
       className={`border-y border-ink py-1.5 text-center font-sc text-lg tracking-[0.12em] lg:text-xl ${className}`}
     >
       {children}
@@ -23,9 +24,11 @@ export function SectionHeading({
 export function Fleuron({ className = "" }: { className?: string }) {
   return (
     <div aria-hidden className={`flex items-center gap-3.5 lg:gap-4 ${className}`}>
-      <div className="grow border-t border-ink-soft" />
-      <span className="text-xl text-accent lg:text-[22px]">❦</span>
-      <div className="grow border-t border-ink-soft" />
+      <div data-anim="rule" className="grow origin-right border-t border-ink-soft" />
+      <span data-anim="rise" className="text-xl text-accent lg:text-[22px]">
+        ❦
+      </span>
+      <div data-anim="rule" className="grow origin-left border-t border-ink-soft" />
     </div>
   );
 }
@@ -39,6 +42,7 @@ export function WordDisplay({
   as: Tag = "p",
   maxClass,
   charWidth,
+  split = false,
   className = "",
 }: {
   word: string;
@@ -46,6 +50,8 @@ export function WordDisplay({
   maxClass: string;
   /** Approximate glyph width in em; raise it for tighter columns. */
   charWidth?: number;
+  /** Render each letter separately so the page animator can play it in letter by letter. */
+  split?: boolean;
   className?: string;
 }) {
   return (
@@ -58,7 +64,18 @@ export function WordDisplay({
         } as CSSProperties
       }
     >
-      <Tag>{word}</Tag>
+      {split ? (
+        // The label keeps the word intact for screen readers; the letters are decoration.
+        <Tag data-anim="word" aria-label={word}>
+          {[...word].map((char, i) => (
+            <span key={i} data-char aria-hidden className="inline-block">
+              {char}
+            </span>
+          ))}
+        </Tag>
+      ) : (
+        <Tag>{word}</Tag>
+      )}
     </div>
   );
 }
@@ -77,6 +94,7 @@ export function ExampleQuote({
 }) {
   return (
     <figure
+      data-anim="rise"
       className={`border-y-[3px] border-double border-ink px-1.5 pt-3.5 pb-4 lg:px-3.5 lg:pt-4 lg:pb-5 ${className}`}
     >
       <figcaption className="font-sc text-[15px] tracking-[0.18em] text-ink-soft lg:text-base">

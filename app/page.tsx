@@ -26,6 +26,7 @@ export default async function Home() {
           <section aria-labelledby="tongues-title">
             <h2
               id="tongues-title"
+              data-anim="rise"
               className="border-b border-ink pb-2 text-center font-sc text-[17px] tracking-[0.12em] text-accent"
             >
               Tongues in Rotation
@@ -34,6 +35,7 @@ export default async function Home() {
               {words.map((w) => (
                 <li
                   key={w.slug}
+                  data-anim="rise"
                   className="flex justify-between gap-3 border-b border-dotted border-ink-soft py-[9px] text-lg last:border-b-0"
                 >
                   <span>{w.lang}</span>
@@ -47,37 +49,52 @@ export default async function Home() {
         {/* The word of the day */}
         <article className="order-1 flex flex-col items-center px-0 pt-6 pb-7 text-center lg:order-none lg:px-8">
           <div className="flex w-full items-center gap-3.5">
-            <div aria-hidden className="grow border-t border-ink" />
-            <h2 className="font-sc text-base tracking-[0.22em] text-accent lg:text-lg">
+            <div aria-hidden data-anim="rule" className="grow origin-right border-t border-ink" />
+            <h2
+              data-anim="rise"
+              className="font-sc text-base tracking-[0.22em] text-accent lg:text-lg"
+            >
               The Word of the Day
             </h2>
-            <div aria-hidden className="grow border-t border-ink" />
+            <div aria-hidden data-anim="rule" className="grow origin-left border-t border-ink" />
           </div>
 
           <div className="mt-5 flex flex-col items-center gap-1.5 lg:mt-[22px] lg:flex-row lg:gap-3.5">
-            <span className="stamp px-3.5 pt-[5px] pb-1 text-lg lg:px-4 lg:pt-1.5 lg:text-xl">
+            <span
+              data-anim="stamp"
+              className="stamp px-3.5 pt-[5px] pb-1 text-lg lg:px-4 lg:pt-1.5 lg:text-xl"
+            >
               {today.lang}
             </span>
-            <span className="text-base text-ink-soft italic lg:text-lg">{today.era}</span>
+            <span data-anim="rise" className="text-base text-ink-soft italic lg:text-lg">
+              {today.era}
+            </span>
           </div>
 
           <WordDisplay
             as="p"
+            split
             word={today.word}
             maxClass="[--max:112px] lg:[--max:176px]"
             className="mt-2 lg:mt-1.5"
           />
-          <p className="text-[19px] leading-snug text-ink-soft italic lg:text-[22px]">
+          <p
+            data-anim="rise"
+            className="text-[19px] leading-snug text-ink-soft italic lg:text-[22px]"
+          >
             {today.pronLine}
           </p>
 
-          <p className="mt-4 w-full border-y border-ink pt-2.5 pb-3 text-3xl leading-[1.15] italic lg:mt-[18px] lg:text-[46px] lg:leading-[1.1]">
+          <p
+            data-anim="rise"
+            className="mt-4 w-full border-y border-ink pt-2.5 pb-3 text-3xl leading-[1.15] italic lg:mt-[18px] lg:text-[46px] lg:leading-[1.1]"
+          >
             {today.meaning}
           </p>
 
           <Fleuron className="mt-[18px] w-3/5" />
 
-          <p className="dropcap mt-4 text-justify text-[18px] leading-normal hyphens-auto lg:text-xl lg:leading-normal">
+          <p data-anim="rise" className="dropcap mt-4 text-justify text-[18px] leading-normal hyphens-auto lg:text-xl lg:leading-normal">
             {today.gloss}
           </p>
 
@@ -90,6 +107,7 @@ export default async function Home() {
 
           <Link
             href={`/word/${today.slug}`}
+            data-anim="rise"
             className="btn btn-accent lnk mt-[22px] w-full px-7 text-[19px] sm:w-auto"
           >
             Read the full entry →
@@ -101,9 +119,14 @@ export default async function Home() {
           <SectionHeading className="mb-2">From the Archive</SectionHeading>
           <ul>
             {archive.map((w) => (
-              <li key={w.slug} className="border-b border-ink-soft last:border-b-0">
+              <li
+                key={w.slug}
+                data-anim="rise"
+                className="border-b border-ink-soft last:border-b-0"
+              >
                 <Link
                   href={`/word/${w.slug}`}
+                  data-hover="nudge"
                   className="lnk group block py-[18px] text-ink no-underline"
                 >
                   <span className="block font-sc text-[15px] tracking-[0.16em] text-accent">

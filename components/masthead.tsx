@@ -12,13 +12,13 @@ export function FrontMasthead({ now }: { now: Date }) {
   return (
     <header>
       {/* Desktop dateline */}
-      <div className="hidden items-center justify-between border-b border-ink pt-1 pb-2 font-sc text-[17px] tracking-[0.1em] text-ink-soft lg:flex">
+      <div data-anim="rise" className="hidden items-center justify-between border-b border-ink pt-1 pb-2 font-sc text-[17px] tracking-[0.1em] text-ink-soft lg:flex">
         <span>Vol. I · Anno Domini {year}</span>
         <span>{date}</span>
         <span>Price: One Curiosity</span>
       </div>
       {/* Phone dateline */}
-      <p className="border-b border-ink pb-1.5 text-center font-sc text-sm tracking-[0.1em] text-ink-soft lg:hidden">
+      <p data-anim="rise" className="border-b border-ink pb-1.5 text-center font-sc text-sm tracking-[0.1em] text-ink-soft lg:hidden">
         {date} · {year}
       </p>
 
@@ -28,8 +28,10 @@ export function FrontMasthead({ now }: { now: Date }) {
           text="Fair, with a fair chance of curiosity"
         />
         <div className="text-center">
-          <h1 className={`${blackletter} text-[46px] lg:text-[78px]`}>{NAME}</h1>
-          <p className="mt-1 text-base text-ink-soft italic lg:text-xl">
+          <h1 data-anim="title" className={`${blackletter} text-[46px] lg:text-[78px]`}>
+            {NAME}
+          </h1>
+          <p data-anim="rise" className="mt-1 text-base text-ink-soft italic lg:text-xl">
             Being a Daily Gazette of Words, gathered from every Tongue and every Age
           </p>
         </div>
@@ -41,7 +43,7 @@ export function FrontMasthead({ now }: { now: Date }) {
 
 function NoticeBox({ title, text }: { title: string; text: string }) {
   return (
-    <div className="hidden border border-ink px-3 py-2.5 text-center lg:block">
+    <div data-anim="rise" className="hidden border border-ink px-3 py-2.5 text-center lg:block">
       <div className="font-sc text-[15px] tracking-[0.14em] text-accent">{title}</div>
       <div className="mt-1 text-lg leading-[1.3] italic">{text}</div>
     </div>
@@ -52,7 +54,10 @@ function NoticeBox({ title, text }: { title: string; text: string }) {
 export function PageMasthead({ slug }: { slug: string }) {
   return (
     <header>
-      <div className="hidden items-center justify-between border-b border-ink pt-1 pb-2 font-sc text-[17px] tracking-[0.1em] text-ink-soft lg:flex">
+      <div
+        data-anim="rise"
+        className="hidden items-center justify-between border-b border-ink pt-1 pb-2 font-sc text-[17px] tracking-[0.1em] text-ink-soft lg:flex"
+      >
         <span>Vol. I</span>
         <span>The Word of the Day, set down at length</span>
         <span>Price: One Curiosity</span>
@@ -61,6 +66,7 @@ export function PageMasthead({ slug }: { slug: string }) {
       <div className="border-b-4 border-double border-ink pt-2.5 pb-2 text-center lg:border-b-0 lg:pt-3.5 lg:pb-2.5">
         <Link
           href="/"
+          data-anim="title"
           className={`lnk ${blackletter} text-[46px] text-ink no-underline lg:text-[62px]`}
         >
           {NAME}
@@ -68,6 +74,7 @@ export function PageMasthead({ slug }: { slug: string }) {
       </div>
 
       <nav
+        data-anim="rise"
         aria-label="Entry"
         className="flex flex-col items-start gap-0.5 border-b border-ink pt-1 pb-2.5 lg:mt-0.5 lg:flex-row lg:items-center lg:justify-between lg:border-t-4 lg:border-double lg:py-2"
       >

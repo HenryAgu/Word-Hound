@@ -29,6 +29,21 @@ body {
   font-family: var(--font-body), Georgia, serif;
 }
 
+/*
+ * Starting state for GSAP-driven elements (see components/page-animator.tsx).
+ * Hidden only when motion is welcome, so reduced-motion readers see a still page.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  [data-anim],
+  [data-anim="word"] [data-char] {
+    opacity: 0;
+  }
+  /* The word itself stays visible; its letters carry the animation. */
+  [data-anim="word"] {
+    opacity: 1;
+  }
+}
+
 @layer components {
   .btn {
     display: inline-flex;

@@ -6,6 +6,7 @@ import {
   UnifrakturCook,
 } from "next/font/google";
 import { Footer } from "@/components/footer";
+import { PageAnimator } from "@/components/page-animator";
 import "./globals.css";
 
 const fellEnglish = IM_Fell_English({
@@ -49,12 +50,20 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${fellEnglish.variable} ${fellSmallCaps.variable} ${fellPica.variable} ${unifraktur.variable}`}
     >
+      <head>
+        {/* Animated elements start hidden; without JS nothing would reveal them. */}
+        <noscript>
+          <style>{"[data-anim],[data-char]{opacity:1 !important}"}</style>
+        </noscript>
+      </head>
       <body className="bg-paper font-body text-ink antialiased">
         {/* Paper edge, then the ruled broadsheet frame */}
         <div className="min-h-dvh p-3.5 shadow-[inset_0_0_60px_rgba(120,84,40,0.22)] lg:px-12 lg:py-9 lg:shadow-[inset_0_0_90px_rgba(120,84,40,0.22)]">
           <div className="flex min-h-[calc(100dvh-28px)] flex-col border-[3px] border-double border-ink px-[18px] pt-3.5 pb-5 lg:min-h-[calc(100dvh-72px)] lg:border-4 lg:px-10 lg:pt-5 lg:pb-6">
-            {children}
-            <Footer />
+            <PageAnimator>
+              {children}
+              <Footer />
+            </PageAnimator>
           </div>
         </div>
       </body>

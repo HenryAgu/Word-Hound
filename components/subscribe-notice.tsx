@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useSyncExternalStore, type ReactNode } from "react";
+import { useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const STORAGE_KEY = "word-hoard:subscription";
 const CHANGE_EVENT = "word-hoard:subscription-change";
@@ -36,6 +38,39 @@ function notifyChange() {
 export function SubscribeNotice() {
   const stored = useSyncExternalStore(subscribeToChanges, readStatus, readServerStatus);
   const [asking, setAsking] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const previousView = useRef<string | null>(null);
+
+  const view = asking ? "asking" : stored;
+
+  // When the card changes state (ask → awaiting → subscribed…), the new copy
+  // settles in line by line, and the tick draws itself.
+  useGSAP(
+    () => {
+      const previous = previousView.current;
+      previousView.current = view;
+      if (previous === null || previous === view) return; // first paint: the page animator handles it
+      if (!window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
+
+      gsap.from(contentRef.current!.children, {
+        opacity: 0,
+        y: 12,
+        duration: 0.45,
+        stagger: 0.07,
+        ease: "power2.out",
+        clearProps: "opacity,transform",
+      });
+      gsap.utils.toArray<SVGGeometryElement>("[data-draw]", contentRef.current).forEach((shape, i) => {
+        const length = shape.getTotalLength();
+        gsap.fromTo(
+          shape,
+          { strokeDasharray: length, strokeDashoffset: length },
+          { strokeDashoffset: 0, duration: 0.6, delay: 0.25 + i * 0.4, ease: "power2.inOut" },
+        );
+      });
+    },
+    { scope: contentRef, dependencies: [view] },
+  );
 
   async function subscribe() {
     setAsking(true);
@@ -64,10 +99,11 @@ export function SubscribeNotice() {
 
   return (
     <section
+      data-anim="rise"
       aria-labelledby="notice-title"
       className="flex flex-col gap-3 border-2 border-ink bg-[rgba(255,250,235,0.35)] px-4 py-5 text-center"
     >
-      <div aria-live="polite" className="flex flex-col gap-3">
+      <div ref={contentRef} aria-live="polite" className="flex flex-col gap-3">
         {asking ? (
           <>
             <Title>Awaiting Thy Leave</Title>
@@ -91,8 +127,8 @@ export function SubscribeNotice() {
                 aria-hidden
                 className="text-accent"
               >
-                <circle cx="17" cy="17" r="14" />
-                <path d="M10 17.5l5 5 9-10.5" />
+                <circle data-draw cx="17" cy="17" r="14" />
+                <path data-draw d="M10 17.5l5 5 9-10.5" />
               </svg>
             </div>
             <Title>Thou Art Subscribed</Title>
