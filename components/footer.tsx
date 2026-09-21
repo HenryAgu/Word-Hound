@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export function Footer() {
   return (
     <footer data-anim="rise" className="mt-auto flex flex-col items-center gap-1 border-t border-ink pt-4 text-center text-[15px] text-ink-soft italic lg:mt-0 lg:flex-row lg:justify-between lg:gap-4 lg:border-t-0 lg:pt-3 lg:text-base">
@@ -6,8 +8,7 @@ export function Footer() {
         ⁂
       </span>
       <span>
-        Delivered <span className="hidden lg:inline">by post-rider </span>at the ninth hour, thy time,
-        not ours
+        Delivered <Link href="https://henry-agu.com/" target="_blank" className="hidden lg:inline">by <span className="font-bold underline">Henry Agu</span> </Link>at the ninth hour
       </span>
     </footer>
   );
