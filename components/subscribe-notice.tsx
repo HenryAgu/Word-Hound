@@ -12,7 +12,23 @@ type Status = "idle" | "subscribed" | "blocked" | "unsupported";
 function subscribeToChanges(onChange: () => void) {
   window.addEventListener(CHANGE_EVENT, onChange);
   window.addEventListener("storage", onChange);
+
+  // Flipping the permission in the browser's site settings fires no event of
+  // ours; the Permissions API reports it, so the card can follow without a reload.
+  let permission: PermissionStatus | undefined;
+  let closed = false;
+  navigator.permissions
+    ?.query({ name: "notifications" })
+    .then((status) => {
+      if (closed) return;
+      permission = status;
+      status.addEventListener("change", onChange);
+    })
+    .catch(() => {}); // not every browser can query this permission
+
   return () => {
+    closed = true;
+    permission?.removeEventListener("change", onChange);
     window.removeEventListener(CHANGE_EVENT, onChange);
     window.removeEventListener("storage", onChange);
   };
@@ -38,6 +54,8 @@ function notifyChange() {
 export function SubscribeNotice() {
   const stored = useSyncExternalStore(subscribeToChanges, readStatus, readServerStatus);
   const [asking, setAsking] = useState(false);
+  // Set once the reader has pressed the button on a blocked site and the browser refused to ask.
+  const [refused, setRefused] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const previousView = useRef<string | null>(null);
 
@@ -73,6 +91,13 @@ export function SubscribeNotice() {
   );
 
   async function subscribe() {
+    // A blocked site is never asked again by the browser itself, so don't flash
+    // the "awaiting" card for a prompt that will not appear.
+    if (Notification.permission === "denied") {
+      setRefused(true);
+      return;
+    }
+    setRefused(false);
     setAsking(true);
     try {
       const permission = await Notification.requestPermission();
@@ -144,12 +169,18 @@ export function SubscribeNotice() {
           <>
             <Title>Leave Was Denied</Title>
             <Text>
-              Notices are blocked for this site. Allow them in thy browser’s site settings, then try
-              once more.
+              Notices are blocked for this site. Allow them in thy browser’s site settings, and
+              this card shall update of itself.
             </Text>
-            <button type="button" onClick={subscribe} className="btn btn-outline min-h-11 px-3 text-[17px]">
-              Try again
+            <button type="button" onClick={subscribe} className="btn btn-solid px-3 text-lg">
+              Send me a word daily
             </button>
+            {refused && (
+              <p role="alert" className="text-[15px] leading-[1.35] text-ink-soft italic">
+                Thy browser will not ask a second time. Open the padlock beside the address, set
+                Notifications to Allow, and the request shall be made anew.
+              </p>
+            )}
           </>
         ) : stored === "unsupported" ? (
           <>
