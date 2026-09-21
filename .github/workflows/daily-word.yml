@@ -1,0 +1,23 @@
+name: Deliver the daily word
+
+# Vercel's free plan can only run a cron job once a day, but delivering "at nine
+# in the morning" for readers in every time zone needs a run every hour. Each run
+# messages the readers whose local clock has just struck nine (see app/api/push/send).
+on:
+  schedule:
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ask the site to send the word
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 60 \
+            --request POST \
+            --header "Authorization: Bearer ${CRON_SECRET}" \
+            "${SITE_URL}/api/push/send"
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

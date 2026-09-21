@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { disablePush, enablePush, isPushSupported } from "@/lib/push/client";
 
 const STORAGE_KEY = "word-hoard:subscription";
 const CHANGE_EVENT = "word-hoard:subscription-change";
@@ -36,7 +37,7 @@ function subscribeToChanges(onChange: () => void) {
 
 // Returns a primitive so React sees a stable snapshot between renders.
 function readStatus(): Status {
-  if (typeof Notification === "undefined") return "unsupported";
+  if (!isPushSupported()) return "unsupported";
   if (Notification.permission === "denied") return "blocked";
   if (Notification.permission === "granted" && localStorage.getItem(STORAGE_KEY)) {
     return "subscribed";
@@ -56,10 +57,18 @@ export function SubscribeNotice() {
   const [asking, setAsking] = useState(false);
   // Set once the reader has pressed the button on a blocked site and the browser refused to ask.
   const [refused, setRefused] = useState(false);
+  // Set when leave was given but the subscription itself could not be made or stored.
+  const [failed, setFailed] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const previousView = useRef<string | null>(null);
 
   const view = asking ? "asking" : stored;
+
+  // A returning subscriber is re-registered quietly: it restores a subscription the
+  // browser has dropped, and refreshes the stored time zone if the reader has travelled.
+  useEffect(() => {
+    if (stored === "subscribed") enablePush().catch(() => {});
+  }, [stored]);
 
   // When the card changes state (ask → awaiting → subscribed…), the new copy
   // settles in line by line, and the tick draws itself.
@@ -98,19 +107,19 @@ export function SubscribeNotice() {
       return;
     }
     setRefused(false);
+    setFailed(false);
     setAsking(true);
     try {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({
-            // The 9am delivery is scheduled against the reader's own clock.
-            timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-            subscribedAt: new Date().toISOString(),
-          }),
-        );
+        // Subscribe with the push service and tell the server, which schedules
+        // the 9am delivery against the reader's own time zone.
+        await enablePush();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ subscribedAt: new Date().toISOString() }));
       }
+    } catch (error) {
+      console.error("Could not subscribe to notices", error);
+      setFailed(true);
     } finally {
       setAsking(false);
       notifyChange();
@@ -120,6 +129,7 @@ export function SubscribeNotice() {
   function unsubscribe() {
     localStorage.removeItem(STORAGE_KEY);
     notifyChange();
+    disablePush().catch(() => {});
   }
 
   return (
@@ -186,8 +196,9 @@ export function SubscribeNotice() {
           <>
             <Title>No Post-Rider Here</Title>
             <Text>
-              This browser cannot receive notices from a gazette. Try another, and thy daily word
-              shall find thee.
+              This browser cannot receive notices from a gazette. On an iPhone or iPad, add this
+              site to the Home Screen and open it from there; otherwise try another browser, and
+              thy daily word shall find thee.
             </Text>
           </>
         ) : (
@@ -199,6 +210,11 @@ export function SubscribeNotice() {
             <button type="button" onClick={subscribe} className="btn btn-solid px-3 text-lg">
               Send me a word daily
             </button>
+            {failed && (
+              <p role="alert" className="text-[15px] leading-[1.35] text-accent">
+                The post-rider could not be engaged. Pray try once more.
+              </p>
+            )}
             <p className="text-[15px] leading-[1.35] text-ink-soft italic">
               Thy browser shall first ask leave. Cancel at any time.
             </p>
