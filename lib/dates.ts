@@ -1,11 +1,10 @@
 const DAY_MS = 86_400_000;
 
-// The design's front page shows the first entry on this day; rotation counts from here.
+// The design's front page shows the first entry on this day; the daily rotation counts from here.
 const ROTATION_START = Date.UTC(2026, 8, 21);
 
-export function wordOfTheDayIndex(now: Date, length: number): number {
-  const days = Math.floor((now.getTime() - ROTATION_START) / DAY_MS);
-  return ((days % length) + length) % length;
+export function daysSinceStart(now: Date): number {
+  return Math.floor((now.getTime() - ROTATION_START) / DAY_MS);
 }
 
 function ordinal(n: number): string {

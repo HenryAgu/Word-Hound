@@ -1,17 +1,20 @@
 import Link from "next/link";
 import { connection } from "next/server";
 import { FrontMasthead } from "@/components/masthead";
-import { ExampleQuote, Fleuron, SectionHeading, WordDisplay } from "@/components/ornaments";
+import { SectionHeading, WordDisplay } from "@/components/ornaments";
 import { SubscribeNotice } from "@/components/subscribe-notice";
-import { wordOfTheDayIndex } from "@/lib/dates";
-import { words } from "@/lib/words";
+import { TodaysOldEnglish } from "@/components/todays-old-english";
+import { WordFeature } from "@/components/word-feature";
+import { tongueOfTheDay, words } from "@/lib/words";
 
 export default async function Home() {
   // The word changes daily, so render per request rather than at build time.
   await connection();
   const now = new Date();
-  const today = words[wordOfTheDayIndex(now, words.length)];
-  const archive = words.filter((w) => w.slug !== today.slug);
+  // Today belongs to one tongue. Hand-written entries render here on the server;
+  // an Old English day draws from the dictionary, which the browser fetches.
+  const { word: today, visit } = tongueOfTheDay(now);
+  const archive = words.filter((w) => w.slug !== today.slug).slice(0, 4);
 
   return (
     <>
@@ -48,70 +51,11 @@ export default async function Home() {
 
         {/* The word of the day */}
         <article className="order-1 flex flex-col items-center px-0 pt-6 pb-7 text-center lg:order-none lg:px-8">
-          <div className="flex w-full items-center gap-3.5">
-            <div aria-hidden data-anim="rule" className="grow origin-right border-t border-ink" />
-            <h2
-              data-anim="rise"
-              className="font-sc text-base tracking-[0.22em] text-accent lg:text-lg"
-            >
-              The Word of the Day
-            </h2>
-            <div aria-hidden data-anim="rule" className="grow origin-left border-t border-ink" />
-          </div>
-
-          <div className="mt-5 flex flex-col items-center gap-1.5 lg:mt-[22px] lg:flex-row lg:gap-3.5">
-            <span
-              data-anim="stamp"
-              className="stamp px-3.5 pt-[5px] pb-1 text-lg lg:px-4 lg:pt-1.5 lg:text-xl"
-            >
-              {today.lang}
-            </span>
-            <span data-anim="rise" className="text-base text-ink-soft italic lg:text-lg">
-              {today.era}
-            </span>
-          </div>
-
-          <WordDisplay
-            as="p"
-            split
-            word={today.word}
-            maxClass="[--max:112px] lg:[--max:176px]"
-            className="mt-2 lg:mt-1.5"
-          />
-          <p
-            data-anim="rise"
-            className="text-[19px] leading-snug text-ink-soft italic lg:text-[22px]"
-          >
-            {today.pronLine}
-          </p>
-
-          <p
-            data-anim="rise"
-            className="mt-4 w-full border-y border-ink pt-2.5 pb-3 text-3xl leading-[1.15] italic lg:mt-[18px] lg:text-[46px] lg:leading-[1.1]"
-          >
-            {today.meaning}
-          </p>
-
-          <Fleuron className="mt-[18px] w-3/5" />
-
-          <p data-anim="rise" className="dropcap mt-4 text-justify text-[18px] leading-normal hyphens-auto lg:text-xl lg:leading-normal">
-            {today.gloss}
-          </p>
-
-          <ExampleQuote
-            label="As it was written"
-            example={today.example}
-            size="md"
-            className="mt-5 w-full"
-          />
-
-          <Link
-            href={`/word/${today.slug}`}
-            data-anim="rise"
-            className="btn btn-accent lnk mt-[22px] w-full px-7 text-[19px] sm:w-auto"
-          >
-            Read the full entry →
-          </Link>
+          {today.lang === "Old English" ? (
+            <TodaysOldEnglish curated={today} visit={visit} />
+          ) : (
+            <WordFeature word={today} />
+          )}
         </article>
 
         {/* From the archive */}

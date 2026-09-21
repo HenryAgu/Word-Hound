@@ -7,6 +7,7 @@ import {
 } from "next/font/google";
 import { Footer } from "@/components/footer";
 import { PageAnimator } from "@/components/page-animator";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
 const fellEnglish = IM_Fell_English({
@@ -60,10 +61,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {/* Page margin, then the ruled broadsheet frame */}
         <div className="min-h-dvh p-3.5 lg:px-12 lg:py-9">
           <div className="flex min-h-[calc(100dvh-28px)] flex-col border-[3px] border-double border-ink px-[18px] pt-3.5 pb-5 lg:min-h-[calc(100dvh-72px)] lg:border-4 lg:px-10 lg:pt-5 lg:pb-6">
-            <PageAnimator>
-              {children}
-              <Footer />
-            </PageAnimator>
+            <Providers>
+              <PageAnimator>
+                {children}
+                <Footer />
+              </PageAnimator>
+            </Providers>
           </div>
         </div>
       </body>

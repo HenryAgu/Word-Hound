@@ -1,3 +1,6 @@
+import { daysSinceStart } from "./dates";
+import { mod } from "./math";
+
 export type Word = {
   slug: string;
   word: string;
@@ -9,9 +12,11 @@ export type Word = {
   /** Pronunciation and part of speech, e.g. "/wyrd/ · noun". */
   pronLine: string;
   meaning: string;
-  gloss: string;
+  gloss?: string;
   example: { text: string; translation?: string; source: string };
-  origin: string;
+  origin?: string;
+  /** Attribution shown in place of an origin for entries drawn from a dictionary dump. */
+  credit?: string;
 };
 
 export const words: Word[] = [
@@ -104,16 +109,33 @@ export const words: Word[] = [
   },
 ];
 
+/** The hand-written entry for `slug`. Dictionary entries are loaded in the browser instead. */
 export function getWord(slug: string): Word | undefined {
   return words.find((w) => w.slug === slug);
 }
 
-/** The entry that follows `slug` in rotation, wrapping around at the end. */
+/** The entry that follows `slug` in rotation: the next tongue, wrapping around at the end. */
 export function getNextWord(slug: string): Word {
-  const i = words.findIndex((w) => w.slug === slug);
+  let i = words.findIndex((w) => w.slug === slug);
+  // A dictionary entry moves on from Old English to the next tongue.
+  if (i < 0) i = words.findIndex((w) => w.lang === "Old English");
   return words[(i + 1) % words.length];
 }
 
-export function getEntryNumber(slug: string): number {
-  return words.findIndex((w) => w.slug === slug) + 1;
+/** The line under "Another word" that says where this entry sits in the hoard. */
+export function getEntryNote(slug: string, oldEnglishCount?: number): string {
+  const i = words.findIndex((w) => w.slug === slug);
+  return i >= 0
+    ? `Entry ${i + 1} of ${words.length}, drawn in rotation`
+    : `One of ${oldEnglishCount ?? "many"} Old English words in the hoard`;
+}
+
+/**
+ * Each day belongs to one tongue, in turn. `word` is that tongue's hand-written
+ * entry; on an Old English day, `visit` says how far into the Old English hoard
+ * to step (see pickOldEnglishWord).
+ */
+export function tongueOfTheDay(now: Date): { word: Word; visit: number } {
+  const day = daysSinceStart(now);
+  return { word: words[mod(day, words.length)], visit: Math.floor(day / words.length) };
 }
