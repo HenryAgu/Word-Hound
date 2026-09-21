@@ -77,7 +77,9 @@ export function reveal(root: HTMLElement, { pageLevel = false } = {}): () => voi
         // Fire a little before the element's top edge enters the viewport's bottom.
         // Anything nearer the bottom (the footer on a page that can't scroll)
         // would otherwise never reach a stricter trigger line.
-        start: "top bottom-=24",
+        // clamp() keeps the line within the scrollable range, so an element near
+        // the end of a short page (stacked layout on small screens) still fires.
+        start: "clamp(top bottom-=24)",
         once: true,
         onEnter: (batch) => gsap.to(batch, { ...to, delay: 0.2, stagger: 0.09, overwrite: true }),
       });
@@ -93,6 +95,22 @@ export function reveal(root: HTMLElement, { pageLevel = false } = {}): () => voi
       duration: 1,
       ease: "power2.inOut",
     });
+
+    // Trigger positions are measured once, but the page keeps changing height
+    // (a skeleton giving way to fetched content, web fonts loading), which would
+    // leave triggers pointing at the wrong place. Re-measure whenever it does.
+    if (pageLevel) {
+      let refreshFrame = 0;
+      const observer = new ResizeObserver(() => {
+        cancelAnimationFrame(refreshFrame);
+        refreshFrame = requestAnimationFrame(() => ScrollTrigger.refresh());
+      });
+      observer.observe(document.body);
+      cleanups.push(() => {
+        cancelAnimationFrame(refreshFrame);
+        observer.disconnect();
+      });
+    }
 
     // Hovering the headword makes its letters hop in a wave.
     all('[data-anim="word"]').forEach((word) => {
