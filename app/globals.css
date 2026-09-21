@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #ebdfc2;
+  --paper: #ffffff;
   --ink: #2b1f14;
   --ink-soft: #5a4632;
   --ink-hover: #4a3626;

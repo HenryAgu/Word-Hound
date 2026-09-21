@@ -70,9 +70,10 @@ export function PageAnimator({ children }: { children: ReactNode }) {
           if (!targets.length) return;
           gsap.set(targets, from);
           ScrollTrigger.batch(targets, {
-            // clamp() keeps the trigger reachable for elements near the end of a
-            // page that can't scroll far enough (e.g. the footer on a tall window).
-            start: "clamp(top 92%)",
+            // Fire a little before the element's top edge enters the viewport's bottom.
+            // Anything nearer the bottom (the footer on a page that can't scroll)
+            // would otherwise never reach a stricter trigger line.
+            start: "top bottom-=24",
             once: true,
             onEnter: (batch) =>
               gsap.to(batch, { ...to, delay: 0.2, stagger: 0.09, overwrite: true }),

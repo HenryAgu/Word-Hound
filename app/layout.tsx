@@ -57,8 +57,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </noscript>
       </head>
       <body className="bg-paper font-body text-ink antialiased">
-        {/* Paper edge, then the ruled broadsheet frame */}
-        <div className="min-h-dvh p-3.5 shadow-[inset_0_0_60px_rgba(120,84,40,0.22)] lg:px-12 lg:py-9 lg:shadow-[inset_0_0_90px_rgba(120,84,40,0.22)]">
+        {/* Page margin, then the ruled broadsheet frame */}
+        <div className="min-h-dvh p-3.5 lg:px-12 lg:py-9">
           <div className="flex min-h-[calc(100dvh-28px)] flex-col border-[3px] border-double border-ink px-[18px] pt-3.5 pb-5 lg:min-h-[calc(100dvh-72px)] lg:border-4 lg:px-10 lg:pt-5 lg:pb-6">
             <PageAnimator>
               {children}
