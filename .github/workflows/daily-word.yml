@@ -14,6 +14,10 @@ jobs:
     steps:
       - name: Ask the site to send the word
         run: |
+          if [ -z "${SITE_URL}" ] || [ -z "${CRON_SECRET}" ]; then
+            echo "::error::Set the SITE_URL and CRON_SECRET repository secrets (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
           curl --fail-with-body --silent --show-error --max-time 60 \
             --request POST \
             --header "Authorization: Bearer ${CRON_SECRET}" \
